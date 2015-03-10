@@ -1,0 +1,26 @@
+#read data
+data_ori<-read.table("household_power_consumption.txt",header = FALSE, sep=";",stringsAsFactors=FALSE, na.strings="?")
+#clange column names 
+colnames(data_ori)<-c("Date","Time","Global_active_power", "Global_reactive_power", "Voltage", "Global_intensity", "Sub_metering_1", "Sub_metering_2", "Sub_metering_3")
+#extract data only from the dates 2007-02-01 and 2007-02-02
+library(dplyr)
+mydata<-filter(data_ori,Date=="1/2/2007" | Date=="2/2/2007")
+#convert the Time variables to Time class
+mydata$formatTime<-strptime(paste(mydata$Date,mydata$Time),"%d/%m/%Y %H:%M:%S")
+#convert the Date variables to Date class
+mydata$Date<-as.Date(mydata$Date,"%d/%m/%Y")
+#plot data
+library(datasets)
+mydata$Global_active_power<-as.numeric(mydata$Global_active_power)
+mydata$Sub_metering_1<-as.numeric(mydata$Sub_metering_1)
+mydata$Sub_metering_2<-as.numeric(mydata$Sub_metering_2)
+mydata$Sub_metering_3<-as.numeric(mydata$Sub_metering_3)
+par(mar=c(5,5,2,2))
+with(mydata,plot(formatTime,Sub_metering_1, type="l", xlab="",  ylab="Energy sub metering"))
+lines(mydata$formatTime,mydata$Sub_metering_2, col="red")
+lines(mydata$formatTime,mydata$Sub_metering_3, col="blue")
+legend("topright", col=c("black", "red", "blue"), legend=c("Sub_metering_1", "Sub_metering_1", "Sub_metering_1"), lty=c(1,1), lwd=c(1,1))
+#make PNG file
+dev.copy(png,file="plot3.png",width=480, height=480, units="px")
+dev.off()
+
